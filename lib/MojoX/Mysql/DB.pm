@@ -1,6 +1,7 @@
 package MojoX::Mysql::DB;
 use Mojo::Base -base;
 use Mojo::Util qw(dumper);
+use Carp qw(croak);
 
 has [qw(id)] => '_default';
 
