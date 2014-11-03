@@ -26,7 +26,7 @@ has 'result'=> sub {
 
 has 'util'=> sub {
 	my $self = shift;
-	return MojoX::Mysql::Util->new();
+	return MojoX::Mysql::Util->new(config=>$self->{'config'});
 };
 
 sub new {

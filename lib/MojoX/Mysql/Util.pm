@@ -1,6 +1,7 @@
 package MojoX::Mysql::Util;
 use Mojo::Base -base;
 use Mojo::Util qw(dumper);
+use Mojo::Collection 'c';
 
 sub quote {
 	my ($self,$str,$default) = @_;
@@ -14,5 +15,10 @@ sub quote {
 	}
 }
 
+sub id {
+	my ($self) = @_;
+	my @keys = sort {$a <=> $b} grep($_ ne '_default',keys $self->{'config'});
+	return c(@keys);
+}
 
 1;

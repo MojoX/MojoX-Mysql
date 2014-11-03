@@ -27,6 +27,12 @@ ok($mysql->util->quote("test'test") eq "'test\\'test'", 'quote ok');
 ok($mysql->util->quote() eq "DEFAULT", 'quote ok');
 ok($mysql->util->quote('', 'NULL') eq "NULL", 'quote ok');
 
+my $collection = $mysql->util->id;
+$collection->each(sub {
+	my $e = shift;
+	ok($e == 1 || $e == 2, 'ok id');
+});
+
 done_testing();
 
 
