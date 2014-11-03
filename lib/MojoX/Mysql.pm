@@ -80,7 +80,10 @@ sub new {
 
 sub do {
 	my ($self,$sql) = (shift,shift);
-	my $dbh = $self->db->id($self->id)->connect_master;
+	my $id = $self->id;
+	$self->flush;
+
+	my $dbh = $self->db->id($id)->connect_master;
 	my $counter = $dbh->do($sql,undef,@_) or die $dbh->errstr;
 	my $insertid = int $dbh->{'mysql_insertid'};
 	return wantarray ? ($insertid,$counter) : $insertid;
@@ -90,33 +93,38 @@ sub query {
 	my ($self, $query) = (shift, shift);
 	my $cb = ref $_[-1] eq 'CODE' ? pop : undef;
 
+	my $id    = $self->id;
+	my $slave = $self->slave;
+	my $async = $self->async;
+	$self->flush;
+
 	my $dbh;
-	if(defined $self->async && defined $self->slave){
-		$dbh = $self->db->id($self->id)->connect_slave;
+	if(defined $async && defined $slave){
+		$dbh = $self->db->id($id)->connect_slave;
 		die 'No connect server' if(ref $dbh ne 'DBI::db');
 		$dbh = $dbh->clone;
 	}
-	elsif(defined $self->async){
-		$dbh = $self->db->id($self->id)->connect_master;
+	elsif(defined $async){
+		$dbh = $self->db->id($id)->connect_master;
 		if(ref $dbh ne 'DBI::db'){
-			$dbh = $self->db->id($self->id)->connect_slave;
+			$dbh = $self->db->id($id)->connect_slave;
 		}
 		die 'No connect server' if(ref $dbh ne 'DBI::db');
 		$dbh = $dbh->clone;
 	}
-	elsif(defined $self->slave){
-		$dbh = $self->db->id($self->id)->connect_slave;
+	elsif(defined $slave){
+		$dbh = $self->db->id($id)->connect_slave;
 		die 'No connect server' if(ref $dbh ne 'DBI::db');
 	}
 	else{
-		$dbh = $self->db->id($self->id)->connect_master;
+		$dbh = $self->db->id($id)->connect_master;
 		if(ref $dbh ne 'DBI::db'){
-			$dbh = $self->db->id($self->id)->connect_slave;
+			$dbh = $self->db->id($id)->connect_slave;
 		}
 		die 'No connect server' if(ref $dbh ne 'DBI::db');
 	}
 
-	if(defined $self->async){
+	if(defined $async){
 		my $sth = $dbh->prepare($query, {async=>1}) or croak $dbh->errstr;
 		$sth->execute(@_) or croak $dbh->errstr;
 		return ($sth,$dbh);
@@ -125,8 +133,125 @@ sub query {
 		my $sth = $dbh->prepare($query) or croak $dbh->errstr;
 		my $counter = $sth->execute(@_) or croak $dbh->errstr;
 		my $collection = $self->result->collection($sth,$cb);
-		return wantarray ? ($collection,$counter,$sth,$dbh) : $collection;
+		return wantarray ? ($collection,$counter,$sth,$dbh,$id) : $collection;
 	}
 }
 
+sub flush {
+	my $self = shift;
+	$self->id('_default');
+	$self->slave(undef);
+	$self->async(undef);
+}
+
 1;
+
+=encoding utf8
+
+=head1 NAME
+
+MojoX::Mysql - Mojolicious ♥ Mysql
+ 
+=head1 SYNOPSIS
+
+  use MojoX::Mysql;
+
+  my %config = (
+    user=>'root',
+    password=>undef,
+    server=>[
+        {dsn=>'database=test;host=localhost;port=3306;mysql_connect_timeout=5;', type=>'master'},
+        {dsn=>'database=test;host=localhost;port=3306;mysql_connect_timeout=5;', type=>'slave'},
+        {dsn=>'database=test;host=localhost;port=3306;mysql_connect_timeout=5;', id=>1, type=>'master'},
+        {dsn=>'database=test;host=localhost;port=3306;mysql_connect_timeout=5;', id=>1, type=>'slave'},
+        {dsn=>'database=test;host=localhost;port=3306;mysql_connect_timeout=5;', id=>2, type=>'master'},
+        {dsn=>'database=test;host=localhost;port=3306;mysql_connect_timeout=5;', id=>2, type=>'slave'},
+    ]
+  );
+
+  my $mysql = MojoX::Mysql->new(%config);
+
+=head1 DESCRIPTION
+
+MojoX::Mysql is a tiny wrapper around DBD::mysql that makes Mysql a lot of fun to use with the Mojolicious real-time web framework.
+
+=head1 ATTRIBUTES
+
+L<MojoX::Mysql> - Attributes.
+
+=head2 id
+
+   $mysql->id(1); # choice id server
+
+=head2 slave
+
+   $mysql->slave(1); # query only slave server
+
+=head2 async
+
+   $mysql->async(1); # query async mode
+
+=head1 METHODS
+
+=head2 do
+
+   my ($insertid,$counter) = $mysql->do('INSERT INTO `names` (`id`,`name`) VALUES(1,?)', 'Lilu Kazerogova');
+
+=head2 do (choice server)
+
+   my ($insertid,$counter) = $mysql->id(1)->do('INSERT INTO `names` (`id`,`name`) VALUES(1,?)', 'Lilu Kazerogova');
+
+=head2 query
+
+   my $collection_object = $mysql->query('SELECT * FROM `names` WHERE id = ?', 1);
+
+   # or
+
+   my ($collection,$counter,$sth,$dbh) = $mysql->query('SELECT * FROM `names` WHERE id = ?', 1);
+
+Return L<Mojo::Collection> object.
+
+=head2 query (choice server)
+
+   my $collection_object = $mysql->id(1)->query('SELECT * FROM `names` WHERE id = ?', 1);
+
+   # or
+
+   my ($collection,$counter,$sth,$dbh) = $mysql->id(1)->query('SELECT * FROM `names` WHERE id = ?', 1);
+
+=head2 query (async)
+
+   my ($sth1,$dbh1) = $mysql->id(1)->async(1)->query('SELECT SLEEP(?) as `sleep`', 1);
+   my ($sth2,$dbh2) = $mysql->id(1)->async(1)->query('SELECT SLEEP(?) as `sleep`', 1);
+
+   my $collection_object1 = $mysql->result->async($sth1,$dbh1);
+   my $collection_object2 = $mysql->result->async($sth2,$dbh2);
+
+Return L<Mojo::Collection> object.
+
+=head2 query (slave server)
+
+   my $collection_object = $mysql->id(1)->slave(1)->query('SELECT * FROM `names` WHERE id = ?', 1);
+
+   # or
+
+   my ($collection,$counter,$sth,$dbh) = $mysql->id(1)->slave(1)->query('SELECT * FROM `names` WHERE id = ?', 1);
+
+=head2 commit, rollback, disconnect
+
+   $mysql->db->commit;
+   $mysql->db->rollback;
+   $mysql->db->disconnect;
+
+=head2 quote
+
+   $mysql->util->quote("test'test");
+
+=head2 id
+
+   $mysql->util->id;
+
+Return id servers in L<Mojo::Collection> object.
+
+=cut
+

@@ -49,6 +49,14 @@ $result->map(sub {
 	ok(shift->{'text'} eq 'Привет как дела', 'text');
 });
 
+$result = $mysql->id(1)->slave(1)->query('SELECT VERSION() as `version`;');
+$result->map(sub {
+	like(shift->{'version'}, qr/^5.5/, 'check version');
+});
+
+$mysql->db->commit;
+$mysql->db->disconnect;
+
 done_testing();
 
 

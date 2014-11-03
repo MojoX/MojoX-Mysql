@@ -9,12 +9,14 @@ sub DESTROY {
 	my $self = shift;
 	$self->rollback;
 	$self->disconnect;
+	$self->flush;
 }
 
 # Master connect DB
 sub connect_master {
 	my $self = shift;
 	my $id   = $self->id;
+	$self->flush;
 
 	my $config = {};
 	if(exists $self->{'config'}->{$id}->{'master'}){
@@ -57,6 +59,7 @@ sub connect_master {
 sub connect_slave {
 	my $self = shift;
 	my $id   = $self->id;
+	$self->flush;
 
 	my $config = {};
 	if(exists $self->{'config'}{$id}->{'slave'}){
@@ -136,6 +139,11 @@ sub disconnect {
 			}
 		}
 	}
+}
+
+sub flush {
+	my $self = shift;
+	$self->id('_default');
 }
 
 1;

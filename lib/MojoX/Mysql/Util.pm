@@ -17,7 +17,7 @@ sub quote {
 
 sub id {
 	my ($self) = @_;
-	my @keys = sort {$a <=> $b} grep($_ ne '_default',keys $self->{'config'});
+	my @keys = sort {$a <=> $b} grep($_ ne '_default',keys %{$self->{'config'}});
 	return c(@keys);
 }
 
