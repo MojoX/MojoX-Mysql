@@ -221,11 +221,11 @@ Return L<Mojo::Collection> object.
 
 =head2 query (async)
 
-   my ($sth1,$dbh1) = $mysql->id(1)->async(1)->query('SELECT SLEEP(?) as `sleep`', 1);
-   my ($sth2,$dbh2) = $mysql->id(1)->async(1)->query('SELECT SLEEP(?) as `sleep`', 1);
+   my ($sth1,$dbh1) = $mysql->id(1)->async(1)->query('SELECT SLEEP(?) as `sleep`', 1); # Automatically new connection
+   my ($sth2,$dbh2) = $mysql->id(1)->async(1)->query('SELECT SLEEP(?) as `sleep`', 1); # Automatically new connection
 
-   my $collection_object1 = $mysql->result->async($sth1,$dbh1);
-   my $collection_object2 = $mysql->result->async($sth2,$dbh2);
+   my $collection_object1 = $mysql->result->async($sth1,$dbh1); # Automatically executed methods finish, commit, disconnect
+   my $collection_object2 = $mysql->result->async($sth2,$dbh2); # Automatically executed methods finish, commit, disconnect
 
 Return L<Mojo::Collection> object.
 
