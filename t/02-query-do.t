@@ -40,7 +40,14 @@ $insertid = $mysql->do('INSERT INTO `test` (`text`) VALUES(?)', 'Привет к
 ok($insertid == 2, 'insertid');
 
 my $result = $mysql->query('SELECT `text` FROM `test` WHERE `id` = ? LIMIT 1', $insertid);
-ok($result->text->[0] eq 'Привет как дела', 'text');
+$result->each(sub{
+	my $e = shift;
+	ok($e->{'text'} eq 'Привет как дела', 'text');
+});
+
+$result->map(sub {
+	ok(shift->{'text'} eq 'Привет как дела', 'text');
+});
 
 done_testing();
 
