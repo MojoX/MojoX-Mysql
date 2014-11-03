@@ -10,6 +10,7 @@ our $VERSION  = '0.01';
 
 use MojoX::Mysql::DB;
 use MojoX::Mysql::Result;
+use MojoX::Mysql::Util;
 
 has [qw(async slave)];
 has [qw(id)] => '_default';
@@ -21,6 +22,11 @@ has 'db'=> sub {
 has 'result'=> sub {
 	my $self = shift;
 	return MojoX::Mysql::Result->new();
+};
+
+has 'util'=> sub {
+	my $self = shift;
+	return MojoX::Mysql::Util->new();
 };
 
 sub new {
