@@ -11,13 +11,9 @@ install:
 services:
   - mysql
 before_script:
-  - mysql -e 'create database meta;'
-  - mysql -e 'create database shard1;'
-  - mysql -e 'create database shard2;'
+  - mysql -e 'create database test;'
 after_script:
-  - mysql -e 'drop database meta;'
-  - mysql -e 'drop database shard1;'
-  - mysql -e 'drop database shard2;'
+  - mysql -e 'drop database test;'
 notifications:
   email:
     on_success:change
