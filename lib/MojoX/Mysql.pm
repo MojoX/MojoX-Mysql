@@ -208,7 +208,7 @@ Return L<MojoX::Mysql::DB> object.
 
 =head2 query
 
-	my $collection_object = $mysql->query('SELECT * FROM `names` WHERE id = ?', 1);
+    my $collection_object = $mysql->query('SELECT * FROM `names` WHERE id = ?', 1);
 
     # or
 
