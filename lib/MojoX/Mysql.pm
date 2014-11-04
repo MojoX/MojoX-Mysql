@@ -216,7 +216,7 @@ Return L<MojoX::Mysql::DB> object.
 
     # or callback
 
-    $mysql->query('SELECT `text` FROM `test` WHERE `id` = ? LIMIT 1', $insertid, sub{
+    $mysql->query('SELECT `text` FROM `test` WHERE `id` = ? LIMIT 1', $insertid, sub {
         my ($self,$data) = @_;
         say dumper $data;
     });
