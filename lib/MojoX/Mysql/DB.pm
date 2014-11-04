@@ -147,3 +147,71 @@ sub flush {
 }
 
 1;
+
+
+=encoding utf8
+
+=head1 NAME
+
+MojoX::Mysql::DB - Connect DB
+ 
+=head1 SYNOPSIS
+
+    use MojoX::Mysql;
+    use Mojo::Util qw(dumper);
+
+    my %config = (
+        user=>'root',
+        password=>undef,
+        server=>[
+            {dsn=>'database=test;host=localhost;port=3306;mysql_connect_timeout=5;', type=>'master'},
+            {dsn=>'database=test;host=localhost;port=3306;mysql_connect_timeout=5;', type=>'slave'},
+            {dsn=>'database=test;host=localhost;port=3306;mysql_connect_timeout=5;', id=>1, type=>'master'},
+            {dsn=>'database=test;host=localhost;port=3306;mysql_connect_timeout=5;', id=>1, type=>'slave'},
+            {dsn=>'database=test;host=localhost;port=3306;mysql_connect_timeout=5;', id=>2, type=>'master'},
+            {dsn=>'database=test;host=localhost;port=3306;mysql_connect_timeout=5;', id=>2, type=>'slave'},
+        ]
+    );
+
+    my $mysql = MojoX::Mysql->new(%config);
+    my $dbh = $mysql->db->connect_master;
+
+=head1 ATTRIBUTES
+
+=head2 id
+
+    $mysql->id(1); # choice id server
+
+=head1 METHODS
+
+=head2 connect_master
+
+    $mysql->db->connect_master;
+
+Return connect object.
+
+=head2 connect_slave
+
+    $mysql->db->connect_slave;
+
+Return connect object.
+
+=head2 commit
+
+    $mysql->db->commit;
+
+Commit on all servers
+
+=head2 rollback
+
+    $mysql->db->rollback;
+
+Rollback on all servers
+
+=head2 disconnect
+
+    $mysql->db->disconnect;
+
+Disconnect on all servers
+
+=cut

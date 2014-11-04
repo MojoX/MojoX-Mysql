@@ -54,6 +54,11 @@ $result->map(sub {
 	like(shift->{'version'}, qr/^5.5/, 'check version');
 });
 
+$mysql->query('SELECT `text` FROM `test` WHERE `id` = ? LIMIT 1', $insertid, sub{
+	my ($self,$data) = @_;
+	ok($data->{'text'} eq 'Привет как дела', 'text');
+});
+
 $mysql->db->commit;
 $mysql->db->disconnect;
 

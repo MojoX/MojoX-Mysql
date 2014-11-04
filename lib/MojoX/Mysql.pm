@@ -6,7 +6,7 @@ use Mojo::Util qw(dumper);
 use DBI;
 use Carp qw(croak);
 
-our $VERSION  = '0.01';
+our $VERSION  = '0.02';
 
 use MojoX::Mysql::DB;
 use MojoX::Mysql::Result;
@@ -154,22 +154,23 @@ MojoX::Mysql - Mojolicious ♥ Mysql
  
 =head1 SYNOPSIS
 
-  use MojoX::Mysql;
+    use MojoX::Mysql;
+    use Mojo::Util qw(dumper);
 
-  my %config = (
-    user=>'root',
-    password=>undef,
-    server=>[
-        {dsn=>'database=test;host=localhost;port=3306;mysql_connect_timeout=5;', type=>'master'},
-        {dsn=>'database=test;host=localhost;port=3306;mysql_connect_timeout=5;', type=>'slave'},
-        {dsn=>'database=test;host=localhost;port=3306;mysql_connect_timeout=5;', id=>1, type=>'master'},
-        {dsn=>'database=test;host=localhost;port=3306;mysql_connect_timeout=5;', id=>1, type=>'slave'},
-        {dsn=>'database=test;host=localhost;port=3306;mysql_connect_timeout=5;', id=>2, type=>'master'},
-        {dsn=>'database=test;host=localhost;port=3306;mysql_connect_timeout=5;', id=>2, type=>'slave'},
-    ]
-  );
+    my %config = (
+        user=>'root',
+        password=>undef,
+        server=>[
+            {dsn=>'database=test;host=localhost;port=3306;mysql_connect_timeout=5;', type=>'master'},
+            {dsn=>'database=test;host=localhost;port=3306;mysql_connect_timeout=5;', type=>'slave'},
+            {dsn=>'database=test;host=localhost;port=3306;mysql_connect_timeout=5;', id=>1, type=>'master'},
+            {dsn=>'database=test;host=localhost;port=3306;mysql_connect_timeout=5;', id=>1, type=>'slave'},
+            {dsn=>'database=test;host=localhost;port=3306;mysql_connect_timeout=5;', id=>2, type=>'master'},
+            {dsn=>'database=test;host=localhost;port=3306;mysql_connect_timeout=5;', id=>2, type=>'slave'},
+        ]
+    );
 
-  my $mysql = MojoX::Mysql->new(%config);
+    my $mysql = MojoX::Mysql->new(%config);
 
 =head1 DESCRIPTION
 
@@ -177,79 +178,92 @@ MojoX::Mysql is a tiny wrapper around DBD::mysql that makes Mysql a lot of fun t
 
 =head1 ATTRIBUTES
 
-L<MojoX::Mysql> - Attributes.
-
 =head2 id
 
-   $mysql->id(1); # choice id server
+    $mysql->id(1); # choice id server
 
 =head2 slave
 
-   $mysql->slave(1); # query only slave server
+    $mysql->slave(1); # query only slave server
 
 =head2 async
 
-   $mysql->async(1); # query async mode
+    $mysql->async(1); # query async mode
 
 =head1 METHODS
 
+=head2 db
+
+    $mysql->db;
+
+Return L<MojoX::Mysql::DB> object.
+
 =head2 do
 
-   my ($insertid,$counter) = $mysql->do('INSERT INTO `names` (`id`,`name`) VALUES(1,?)', 'Lilu Kazerogova');
+    my ($insertid,$counter) = $mysql->do('INSERT INTO `names` (`id`,`name`) VALUES(1,?)', 'Lilu Kazerogova');
 
 =head2 do (choice server)
 
-   my ($insertid,$counter) = $mysql->id(1)->do('INSERT INTO `names` (`id`,`name`) VALUES(1,?)', 'Lilu Kazerogova');
+    my ($insertid,$counter) = $mysql->id(1)->do('INSERT INTO `names` (`id`,`name`) VALUES(1,?)', 'Lilu Kazerogova');
 
 =head2 query
 
-   my $collection_object = $mysql->query('SELECT * FROM `names` WHERE id = ?', 1);
+    my $collection_object = $mysql->query('SELECT * FROM `names` WHERE id = ?', 1);
 
-   # or
+    # or
 
-   my ($collection,$counter,$sth,$dbh) = $mysql->query('SELECT * FROM `names` WHERE id = ?', 1);
+    my ($collection,$counter,$sth,$dbh) = $mysql->query('SELECT * FROM `names` WHERE id = ?', 1);
+
+    # or callback
+
+    $mysql->query('SELECT `text` FROM `test` WHERE `id` = ? LIMIT 1', $insertid, sub{
+        my ($self,$data) = @_;
+        say dumper $data;
+    });
 
 Return L<Mojo::Collection> object.
 
 =head2 query (choice server)
 
-   my $collection_object = $mysql->id(1)->query('SELECT * FROM `names` WHERE id = ?', 1);
+    my $collection_object = $mysql->id(1)->query('SELECT * FROM `names` WHERE id = ?', 1);
 
-   # or
+    # or
 
-   my ($collection,$counter,$sth,$dbh) = $mysql->id(1)->query('SELECT * FROM `names` WHERE id = ?', 1);
+    my ($collection,$counter,$sth,$dbh) = $mysql->id(1)->query('SELECT * FROM `names` WHERE id = ?', 1);
 
 =head2 query (async)
 
-   my ($sth1,$dbh1) = $mysql->id(1)->async(1)->query('SELECT SLEEP(?) as `sleep`', 1); # Automatically new connection
-   my ($sth2,$dbh2) = $mysql->id(1)->async(1)->query('SELECT SLEEP(?) as `sleep`', 1); # Automatically new connection
+    my ($sth1,$dbh1) = $mysql->id(1)->async(1)->query('SELECT SLEEP(?) as `sleep`', 1); # Automatically new connection
+    my ($sth2,$dbh2) = $mysql->id(1)->async(1)->query('SELECT SLEEP(?) as `sleep`', 1); # Automatically new connection
 
-   my $collection_object1 = $mysql->result->async($sth1,$dbh1); # Automatically executed methods finish, commit, disconnect
-   my $collection_object2 = $mysql->result->async($sth2,$dbh2); # Automatically executed methods finish, commit, disconnect
+    my $collection_object1 = $mysql->result->async($sth1,$dbh1); # Automatically executed methods finish, commit, disconnect
+    my $collection_object2 = $mysql->result->async($sth2,$dbh2); # Automatically executed methods finish, commit, disconnect
+
+    # Performed concurrently (1 seconds)
 
 Return L<Mojo::Collection> object.
 
 =head2 query (slave server)
 
-   my $collection_object = $mysql->id(1)->slave(1)->query('SELECT * FROM `names` WHERE id = ?', 1);
+    my $collection_object = $mysql->id(1)->slave(1)->query('SELECT * FROM `names` WHERE id = ?', 1);
 
-   # or
+    # or
 
-   my ($collection,$counter,$sth,$dbh) = $mysql->id(1)->slave(1)->query('SELECT * FROM `names` WHERE id = ?', 1);
+    my ($collection,$counter,$sth,$dbh) = $mysql->id(1)->slave(1)->query('SELECT * FROM `names` WHERE id = ?', 1);
 
 =head2 commit, rollback, disconnect
 
-   $mysql->db->commit;
-   $mysql->db->rollback;
-   $mysql->db->disconnect;
+    $mysql->db->commit;
+    $mysql->db->rollback;
+    $mysql->db->disconnect;
 
 =head2 quote
 
-   $mysql->util->quote("test'test");
+    $mysql->util->quote("test'test");
 
 =head2 id
 
-   $mysql->util->id;
+    $mysql->util->id;
 
 Return id servers in L<Mojo::Collection> object.
 
