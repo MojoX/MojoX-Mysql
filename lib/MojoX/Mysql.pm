@@ -208,7 +208,7 @@ Return L<MojoX::Mysql::DB> object.
 
 =head2 query
 
-    my $collection_object = $mysql->query('SELECT * FROM `names` WHERE id = ?', 1);
+	my $collection_object = $mysql->query('SELECT * FROM `names` WHERE id = ?', 1);
 
     # or
 
@@ -266,6 +266,21 @@ Return L<Mojo::Collection> object.
     $mysql->util->id;
 
 Return id servers in L<Mojo::Collection> object.
+
+=head1 Mojolicious Plugin
+
+SEE ALSO L<Mojolicious::Plugin::Mysql>
+
+=head1 AUTHOR
+
+Kostya Ten, C<kostya@cpan.org>.
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2014, Kostya Ten.
+
+This program is free software, you can redistribute it and/or modify it under
+the terms of the Apache License version 2.0.
 
 =cut
 
