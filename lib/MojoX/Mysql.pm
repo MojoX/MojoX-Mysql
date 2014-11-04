@@ -6,7 +6,7 @@ use Mojo::Util qw(dumper);
 use DBI;
 use Carp qw(croak);
 
-our $VERSION  = '0.03';
+our $VERSION  = '0.05';
 
 use MojoX::Mysql::DB;
 use MojoX::Mysql::Result;
