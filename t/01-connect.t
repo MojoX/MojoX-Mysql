@@ -7,6 +7,8 @@ use FindBin;
 use lib "$FindBin::Bin/../lib/";
 use MojoX::Mysql;
 
+plan skip_all => 'set TEST_ONLINE to enable this test' unless $ENV{TEST_ONLINE};
+
 my %config = (
 	user=>'root',
 	password=>undef,
