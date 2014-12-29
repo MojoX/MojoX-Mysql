@@ -2,6 +2,7 @@ package MojoX::Mysql::Result;
 use Mojo::Base -base;
 use Mojo::Util qw(dumper);
 use Mojo::Collection 'c';
+use Mojo::Date;
 
 sub async {
 	my ($self,$sth,$dbh,$cb) = @_;
@@ -37,6 +38,9 @@ sub collection {
 					else{
 						$value = int $value;
 					}
+				}
+				elsif($type eq 'datetime'){
+					$value = Mojo::Date->new($value);
 				}
 				else{
 					if(!$value && $null){
