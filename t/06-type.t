@@ -43,4 +43,23 @@ $result->each(sub{
 	ok($e->{'datetime'}->to_string eq 'Mon, 01 Jan 2001 00:00:00 GMT');
 });
 
+
+$mysql->do('DROP TABLE IF EXISTS `test`;'); # Delete table
+
+$mysql->do(q{
+	CREATE TABLE IF NOT EXISTS `test` (
+	  `id` int(11) NOT NULL AUTO_INCREMENT,
+	  `int` tinyint(1) unsigned NULL DEFAULT 0,
+	  PRIMARY KEY (`id`)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='test table' AUTO_INCREMENT=1;
+});
+
+($insertid,$counter) = $mysql->do('INSERT INTO `test` (`int`) VALUES(0)');
+$result = $mysql->query('SELECT `int` FROM `test` WHERE `id` = ? LIMIT 1', $insertid);
+$result->each(sub{
+	my $e = shift;
+	ok($e->{'int'} == 0, 'ok 0');
+});
+
+
 done_testing();

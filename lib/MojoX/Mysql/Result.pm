@@ -32,7 +32,7 @@ sub collection {
 				my $null = $nulls->[$count_state];
 
 				if($type eq 'tinyint' || $type eq 'smallint' || $type eq 'mediumint' || $type eq 'integer' || $type eq 'bigint'){
-					if(!$value && $null){
+					if($value != 0 && $null){
 						$value = undef;
 					}
 					else{
