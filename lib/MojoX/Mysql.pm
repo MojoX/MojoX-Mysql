@@ -6,7 +6,7 @@ use Mojo::Util qw(dumper);
 use DBI;
 use Carp qw(croak);
 
-our $VERSION  = '0.08';
+our $VERSION  = '0.09';
 
 use MojoX::Mysql::DB;
 use MojoX::Mysql::Result;
@@ -101,7 +101,7 @@ sub query {
 	my $dbh;
 	if(defined $async && defined $slave){
 		$dbh = $self->db->id($id)->connect_slave;
-		die 'No connect server' if(ref $dbh ne 'DBI::db');
+		croak 'No connect server' if(ref $dbh ne 'DBI::db');
 		$dbh = $dbh->clone;
 	}
 	elsif(defined $async){
@@ -109,19 +109,19 @@ sub query {
 		if(ref $dbh ne 'DBI::db'){
 			$dbh = $self->db->id($id)->connect_slave;
 		}
-		die 'No connect server' if(ref $dbh ne 'DBI::db');
+		croak 'No connect server' if(ref $dbh ne 'DBI::db');
 		$dbh = $dbh->clone;
 	}
 	elsif(defined $slave){
 		$dbh = $self->db->id($id)->connect_slave;
-		die 'No connect server' if(ref $dbh ne 'DBI::db');
+		croak 'No connect server' if(ref $dbh ne 'DBI::db');
 	}
 	else{
 		$dbh = $self->db->id($id)->connect_master;
 		if(ref $dbh ne 'DBI::db'){
 			$dbh = $self->db->id($id)->connect_slave;
 		}
-		die 'No connect server' if(ref $dbh ne 'DBI::db');
+		croak 'No connect server' if(ref $dbh ne 'DBI::db');
 	}
 
 	if(defined $async){

@@ -21,6 +21,8 @@ sub collection {
 	my $names = $sth->{'NAME'};
 	my $types = $sth->{'mysql_type_name'};
 	my $nulls = $sth->{'NULLABLE'};
+	#my $scale = $sth->{'Statement'};
+
 	while (my $ref = $sth->fetch()) {
 		if(ref($names) eq 'ARRAY'){
 			my %hash;
@@ -32,7 +34,7 @@ sub collection {
 				my $null = $nulls->[$count_state];
 
 				if($type eq 'tinyint' || $type eq 'smallint' || $type eq 'mediumint' || $type eq 'integer' || $type eq 'bigint'){
-					if($value != 0 && $null){
+					if($null == 1 && !defined $value){
 						$value = undef;
 					}
 					else{

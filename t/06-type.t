@@ -62,4 +62,22 @@ $result->each(sub{
 });
 
 
+$mysql->do('DROP TABLE IF EXISTS `test`;'); # Delete table
+$mysql->do(q{
+	CREATE TABLE IF NOT EXISTS `test` (
+	  `id` int(11) NOT NULL AUTO_INCREMENT,
+	  `int` tinyint(1) unsigned NULL DEFAULT 0,
+	  PRIMARY KEY (`id`)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='test table' AUTO_INCREMENT=1;
+});
+($insertid,$counter) = $mysql->do('INSERT INTO `test` (`int`) VALUES(1)');
+$result = $mysql->query('SELECT `int` FROM `test` WHERE `id` = ? LIMIT 1', $insertid);
+$result->each(sub{
+	my $e = shift;
+	ok($e->{'int'} == 1, 'ok 1');
+});
+
+
+
+
 done_testing();
