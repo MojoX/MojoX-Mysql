@@ -44,6 +44,7 @@ sub connect_master {
 
 		if($DBI::errstr){
 			$self->{'dbh'}{'master'}{$id} = undef;
+			croak $DBI::errstr;
 			return;
 		}
 		else{
