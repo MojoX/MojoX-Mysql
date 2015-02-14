@@ -41,7 +41,7 @@ sub collection {
 						$value = int $value;
 					}
 				}
-				elsif($type eq 'datetime'){
+				elsif($type eq 'datetime' && defined $value){
 					$value = Mojo::Date->new($value);
 				}
 				else{
