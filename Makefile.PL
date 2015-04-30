@@ -14,8 +14,8 @@ WriteMakefile(
         requires  => {perl => '5.010001'},
         resources => {
             license    => 'http://opensource.org/licenses/Apache-2.0',
-            bugtracker => 'https://github.com/helptasker/MojoX-Mysql/issues',
-            repository => 'https://github.com/helptasker/MojoX-Mysql',
+            bugtracker => 'https://github.com/MojoX/MojoX-Mysql/issues',
+            repository => 'https://github.com/MojoX/MojoX-Mysql',
         },
         no_index => {directory => ['t']}
     },

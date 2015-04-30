@@ -1,4 +1,4 @@
 MojoX-Mysql
 ===========
 
-Mojolicious ♥ Mysql
+Mojolicious ♥  Mysql
