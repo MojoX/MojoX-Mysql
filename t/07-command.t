@@ -5,6 +5,7 @@ use Test::Mojo;
 use Mojo::Util qw(dumper);
 use FindBin;
 use lib "$FindBin::Bin/../lib/";
+use lib "$FindBin::Bin";
 use MojoX::Mysql;
 use Mojolicious::Command::sql;
 
@@ -16,13 +17,13 @@ my %config = (
 	server=>[
 		{dsn=>'database=test;host=localhost;port=3306;mysql_connect_timeout=5;', type=>'master', migration=>'migration::default'},
 		{dsn=>'database=test;host=localhost;port=3306;mysql_connect_timeout=5;', type=>'slave'},
-		{dsn=>'database=test;host=localhost;port=3306;mysql_connect_timeout=5;', id=>1, type=>'master', migration=>'TEST::default1'},
+		{dsn=>'database=test;host=localhost;port=3306;mysql_connect_timeout=5;', id=>1, type=>'master'},
 		{dsn=>'database=test;host=localhost;port=3306;mysql_connect_timeout=5;', id=>1, type=>'slave'},
 		{dsn=>'database=test;host=localhost;port=3306;mysql_connect_timeout=5;', id=>2, type=>'master'},
 		{dsn=>'database=test;host=localhost;port=3306;mysql_connect_timeout=5;', id=>2, type=>'slave'},
 	],
 );
-$config{'user'} = 'travis' if(defined $ENV{'MOJO_TEST_TRAVIS'} && $ENV{'MOJO_TEST_TRAVIS'} == 1);
+$config{'user'} = 'root' if(defined $ENV{'MOJO_TEST_TRAVIS'} && $ENV{'MOJO_TEST_TRAVIS'} == 1);
 
 plugin 'Mysql' => \%config;
 my $t = Test::Mojo->new;
@@ -38,5 +39,8 @@ get '/' => sub {
 
 $t->get_ok('/');
 $t->status_is(200);
+
+#$t->app->mysql->query('SELECT * FROM `test1`;');
+#$t->app->mysql->query('SELECT * FROM `test2`;');
 
 done_testing();

@@ -7,7 +7,6 @@ use Mojo::Date;
 use Term::ANSIColor;
 use Mojo::Loader qw(data_section load_class);
 
-
 has description => encode 'UTF-8', "sql data migrations\n";
 has usage => <<EOF;
 
@@ -21,7 +20,7 @@ sub run {
 	$id = '_default' if(!defined $id);
 	my $migration_object = $self->app->mysql->{'migration'}->{$id};
 	my $e = load_class $migration_object;
-	warn qq{Loading "$migration_object" failed: $e} and next if ref $e;
+	warn qq{Loading "$migration_object" failed: $e} if ref $e;
 
 	my $all = data_section($migration_object);
 	my @table = ();
@@ -39,7 +38,7 @@ sub run {
 	if(defined $action && $action eq 'delete'){
 		$self->app->mysql->id($id)->do("SET FOREIGN_KEY_CHECKS = 0;");
 		$self->app->mysql->id($id)->do("DROP TABLE IF EXISTS `$_`;") for (@table);
-		$self->app->mysql->id($id)->do("DROP TABLE IF EXISTS `_version`;") for (@table);
+		$self->app->mysql->id($id)->do("DROP TABLE IF EXISTS `_version`;");
 		$self->app->mysql->id($id)->do("SET FOREIGN_KEY_CHECKS = 1;");
 		$self->app->mysql->db->commit;
 	}
