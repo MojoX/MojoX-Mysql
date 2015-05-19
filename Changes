@@ -1,5 +1,8 @@
-0.12  2015-05-19
+0.13  2015-05-19
   - added migration command
+
+0.12  2015-02-15
+  - Fixed build
 
 0.11  2015-02-15
   - Fixed bug with empty time
