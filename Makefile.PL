@@ -8,7 +8,7 @@ WriteMakefile(
     NAME         => 'MojoX::Mysql',
     VERSION_FROM => 'lib/MojoX/Mysql.pm',
     AUTHOR       => 'Kostya Ten <kostya@cpan.org>',
-    PREREQ_PM    => {'Mojolicious' => '5.57', 'DBD::mysql' => '4.028', 'DBI' => '1.631'},
+    PREREQ_PM    => {'Mojolicious' => '6.11', 'DBD::mysql' => '4.028', 'DBI' => '1.631'},
     LICENSE      => 'apache',
     META_MERGE   => {
         requires  => {perl => '5.010001'},

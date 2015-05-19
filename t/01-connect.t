@@ -7,7 +7,7 @@ use FindBin;
 use lib "$FindBin::Bin/../lib/";
 use MojoX::Mysql;
 
-plan skip_all => 'set TEST_ONLINE to enable this test' unless $ENV{TEST_ONLINE};
+plan skip_all => 'set MOJO_TEST_TRAVIS to enable this test' unless $ENV{'MOJO_TEST_TRAVIS'};
 
 my %config = (
 	user=>'root',
@@ -21,7 +21,7 @@ my %config = (
 		{dsn=>'database=test;host=localhost;port=3306;mysql_connect_timeout=5;', id=>2, type=>'slave'},
 	]
 );
-$config{'user'} = 'travis' if(defined $ENV{'USER'} && $ENV{'USER'} eq 'travis');
+$config{'user'} = 'travis' if(defined $ENV{'MOJO_TEST_TRAVIS'} && $ENV{'MOJO_TEST_TRAVIS'} == 1);
 
 my $mysql = MojoX::Mysql->new(%config);
 
