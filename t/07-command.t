@@ -40,7 +40,4 @@ get '/' => sub {
 $t->get_ok('/');
 $t->status_is(200);
 
-#$t->app->mysql->query('SELECT * FROM `test1`;');
-#$t->app->mysql->query('SELECT * FROM `test2`;');
-
 done_testing();
