@@ -19,7 +19,7 @@ sub run {
 	my ($self, $action, $id) = @_;
 
 	$id = '_default' if(!defined $id);
-	my $migration_object = $self->app->mysql->{'config'}->{'migration'}->{$id};
+	my $migration_object = $self->app->mysql->{'migration'}->{$id};
 	my $e = load_class $migration_object;
 	warn qq{Loading "$migration_object" failed: $e} and next if ref $e;
 

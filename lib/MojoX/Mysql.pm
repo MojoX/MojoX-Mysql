@@ -78,8 +78,7 @@ sub new {
 		$migration{$id} = $master->{'migration'};
 	}
 
-	$config{'migration'} = \%migration;
-	return $class->SUPER::new(config=>\%config);
+	return $class->SUPER::new(config=>\%config, migration=>\%migration);
 }
 
 sub do {
