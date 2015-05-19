@@ -15,7 +15,7 @@ my %config = (
 	user=>'root',
 	password=>undef,
 	server=>[
-		{dsn=>'database=test;host=localhost;port=3306;mysql_connect_timeout=5;', type=>'master', migration=>'migration::default'},
+		{dsn=>'database=test;host=localhost;port=3306;mysql_connect_timeout=5;', type=>'master', migration=>'migration::default', fake=>'migration::fake'},
 		{dsn=>'database=test;host=localhost;port=3306;mysql_connect_timeout=5;', type=>'slave'},
 		{dsn=>'database=test;host=localhost;port=3306;mysql_connect_timeout=5;', id=>1, type=>'master'},
 		{dsn=>'database=test;host=localhost;port=3306;mysql_connect_timeout=5;', id=>1, type=>'slave'},
@@ -27,7 +27,7 @@ $config{'user'} = 'root' if(defined $ENV{'MOJO_TEST_TRAVIS'} && $ENV{'MOJO_TEST_
 
 plugin 'Mysql' => \%config;
 my $t = Test::Mojo->new;
-Mojolicious::Command::sql->new(app=>$t->app)->run('delete')->run('create')->run('update');
+Mojolicious::Command::sql->new(app=>$t->app)->run('delete')->run('create')->run('update')->run('fake');
 
 get '/' => sub {
 	my $self = shift;
@@ -39,5 +39,8 @@ get '/' => sub {
 
 $t->get_ok('/');
 $t->status_is(200);
+
+my $result = $t->app->mysql->query('SELECT * FROM `test1`');
+ok($result->[0]->{'text'} eq 'Тест', 'ok fake');
 
 done_testing();

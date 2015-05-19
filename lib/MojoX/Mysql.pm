@@ -6,7 +6,7 @@ use Mojo::Util qw(dumper);
 use DBI;
 use Carp qw(croak);
 
-our $VERSION  = '0.13';
+our $VERSION  = '0.14';
 
 use MojoX::Mysql::DB;
 use MojoX::Mysql::Result;
@@ -68,6 +68,7 @@ sub new {
 	}
 
 	my %migration = ();
+	my %fake = ();
 	while(my($id,$data) = each(%config)){
 		my @master = grep($_->{'type'} eq 'master', @{$data});
 		my @slave = grep($_->{'type'} eq 'slave', @{$data});
@@ -76,9 +77,9 @@ sub new {
 		$master = $master[0] if(@master);
 		$config{$id} = {master=>$master, slave=>\@slave};
 		$migration{$id} = $master->{'migration'};
+		$fake{$id} = $master->{'fake'};
 	}
-
-	return $class->SUPER::new(config=>\%config, migration=>\%migration);
+	return $class->SUPER::new(config=>\%config, migration=>\%migration, fake=>\%fake);
 }
 
 sub do {

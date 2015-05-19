@@ -55,14 +55,36 @@ sub run {
 		for my $file_version (sort {$a <=> $b} @version){
 			if($file_version > int $version_id){
 				my $sql = data_section($migration_object,$file_version);
-				$sql =~ s/\t//g;
-				$sql =~ s/\n//g;
-				$self->app->mysql->id($id)->do($sql) if(defined $sql);
-				$self->app->mysql->id($id)->do("INSERT INTO `_version` (`version_id`,`date`) VALUES($file_version,UTC_TIMESTAMP());");
-				say colored ['bright_green'],'update sql version:'.$file_version;
+				if(defined $sql){
+					$sql =~ s/\t//g;
+					$sql =~ s/\n//g;
+					$self->app->mysql->id($id)->do($sql);
+					$self->app->mysql->id($id)->do("INSERT INTO `_version` (`version_id`,`date`) VALUES($file_version,UTC_TIMESTAMP());");
+					say colored ['bright_green'],'update sql version:'.$file_version;
+				}
 			}
 			else {
 				say colored ['bright_red'],'skip sql version:'.$file_version;
+			}
+		}
+	}
+	elsif(defined $action && $action eq 'fake' && $self->app->mode eq 'development'){
+		my $fake_object = $self->app->mysql->{'fake'}->{$id};
+		my $e = load_class $fake_object;
+		warn qq{Loading "$fake_object" failed: $e} if ref $e;
+
+		my @version = ();
+		while(my ($id) = each(%{$all})){
+			push(@version,$id);
+		}
+
+		for my $version (sort {$a <=> $b} @version){
+			my $sql = data_section($fake_object,$version);
+			if(defined $sql){
+				$sql =~ s/\t//g;
+				$sql =~ s/\n//g;
+				$self->app->mysql->id($id)->do($sql);
+				say colored ['bright_blue'],'fake sql version:'.$version;
 			}
 		}
 	}
