@@ -12,7 +12,7 @@ install:
 services:
   - mysql
 env:
-  - "TEST_ONLINE=1"
+  - "MOJO_TEST_TRAVIS=1"
 before_script:
   - mysql -e 'create database test;'
 after_script:
