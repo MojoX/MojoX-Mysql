@@ -1,5 +1,6 @@
-0.15  2016-02-26
-  - new migration param
+0.18  2016-02-26
+  - new migration
+  - restore code
 
 0.14  2015-05-19
   - added fake data command

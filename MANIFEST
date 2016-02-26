@@ -20,3 +20,5 @@ t/05-mojolicious.t
 t/06-type.t
 t/07-command.t
 t/migration/default.pm
+t/migration/default01.pm
+t/migration/default02.pm
