@@ -6,8 +6,8 @@ use MojoX::Mysql;
 
 sub register {
 	my ($self, $app, $config) = @_;
-	my %config;
 
+	$config->{'app'} = $app;
 	my $mysql = MojoX::Mysql->new(%{$config});
 
 	# MojoX

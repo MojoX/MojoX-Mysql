@@ -21,7 +21,6 @@ sub collection {
 	my $names = $sth->{'NAME'};
 	my $types = $sth->{'mysql_type_name'};
 	my $nulls = $sth->{'NULLABLE'};
-	#my $scale = $sth->{'Statement'};
 
 	while (my $ref = $sth->fetch()) {
 		if(ref($names) eq 'ARRAY'){

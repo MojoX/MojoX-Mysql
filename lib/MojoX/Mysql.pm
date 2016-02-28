@@ -6,7 +6,7 @@ use Mojo::Util qw(dumper);
 use DBI;
 use Carp qw(croak);
 
-our $VERSION  = '0.18';
+our $VERSION  = '0.19';
 
 use MojoX::Mysql::DB;
 use MojoX::Mysql::Result;
@@ -77,9 +77,8 @@ sub new {
 		$master = $master[0] if(@master);
 		$config{$id} = {master=>$master, slave=>\@slave};
 		$migration{$id} = $master->{'migration'};
-		$fake{$id} = $master->{'fake'};
 	}
-	return $class->SUPER::new(config=>\%config, migration=>\%migration, fake=>\%fake);
+	return $class->SUPER::new(config=>\%config, migration=>\%migration, app=>$args{'app'});
 }
 
 sub do {
@@ -88,6 +87,7 @@ sub do {
 	$self->flush;
 
 	my $dbh = $self->db->id($id)->connect_master;
+	$self->_logging_sql($sql,@_);
 	my $counter = $dbh->do($sql,undef,@_) or die $dbh->errstr;
 	my $insertid = int $dbh->{'mysql_insertid'};
 	return wantarray ? ($insertid,$counter) : $insertid;
@@ -128,6 +128,8 @@ sub query {
 		croak 'No connect server' if(ref $dbh ne 'DBI::db');
 	}
 
+	$self->_logging_sql($query,@_);
+
 	if(defined $async){
 		my $sth = $dbh->prepare($query, {async=>1}) or croak $dbh->errstr;
 		$sth->execute(@_) or croak $dbh->errstr;
@@ -147,6 +149,25 @@ sub flush {
 	$self->slave(undef);
 	$self->async(undef);
 }
+
+sub _logging_sql {
+	my $self = shift;
+	my $sql = shift;
+
+	if(ref $self->{'app'}){
+		$sql =~ s/\t//g;
+		$sql =~ s/\n+/ /g;
+		$sql =~ s/^\s//;
+		$sql =~ s/\s$//;
+		if(@_){
+			$self->{'app'}->log->debug("$sql --- ".join(" | ",@_)." ---");
+		}
+		else{
+			$self->{'app'}->log->debug($sql);
+		}
+	}
+}
+
 
 1;
 
