@@ -1,3 +1,6 @@
+0.20  2016-03-17
+  - fixed logging sql
+
 0.19  2016-02-28
   - added logging sql
 
