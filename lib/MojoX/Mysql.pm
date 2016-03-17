@@ -6,7 +6,7 @@ use Mojo::Util qw(dumper);
 use DBI;
 use Carp qw(croak);
 
-our $VERSION  = '0.20';
+our $VERSION  = '0.21';
 
 use MojoX::Mysql::DB;
 use MojoX::Mysql::Result;
@@ -159,12 +159,13 @@ sub _logging_sql {
 		$sql =~ s/\n+/ /g;
 		$sql =~ s/^\s//;
 		$sql =~ s/\s$//;
-		if(defined @_ && @_){
-			$self->{'app'}->log->debug("$sql --- ".join(" | ",@_)." ---");
-		}
-		else{
-			$self->{'app'}->log->debug($sql);
-		}
+		$self->{'app'}->log->debug($sql);
+
+		#if(defined @_ && @_){
+		#	$self->{'app'}->log->debug("$sql --- ".join(" | ",@_)." ---");
+		#}
+		#else{
+		#}
 	}
 }
 
