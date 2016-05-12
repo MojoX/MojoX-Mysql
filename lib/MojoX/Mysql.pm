@@ -6,7 +6,7 @@ use Mojo::Util qw(dumper);
 use DBI;
 use Carp qw(croak);
 
-our $VERSION  = '0.21';
+our $VERSION  = '0.22';
 
 use MojoX::Mysql::DB;
 use MojoX::Mysql::Result;
@@ -49,11 +49,19 @@ sub new {
 			# Add the global read_timeout
 			$server->{'read_timeout'} = $args{'read_timeout'} if(!exists $server->{'read_timeout'} && exists $args{'read_timeout'});
 
-			$server->{'id'} = '_default'    if(!exists $server->{'id'});
-			$server->{'type'} = 'slave'     if(!exists $server->{'type'});
-			$server->{'weight'} = 1         if(!exists $server->{'weight'});
-			$server->{'write_timeout'} = 60 if(!exists $server->{'write_timeout'});
-			$server->{'read_timeout'}  = 60 if(!exists $server->{'read_timeout'});
+			# Add the global read_timeout
+			$server->{'read_timeout'} = $args{'read_timeout'} if(!exists $server->{'read_timeout'} && exists $args{'read_timeout'});
+
+			# Add the global connect_timeout
+			$server->{'connect_timeout'} = $args{'connect_timeout'} if(!exists $server->{'connect_timeout'} && exists $args{'connect_timeout'});
+
+
+			$server->{'id'} = '_default'      if(!exists $server->{'id'});
+			$server->{'type'} = 'slave'       if(!exists $server->{'type'});
+			$server->{'weight'} = 1           if(!exists $server->{'weight'});
+			$server->{'write_timeout'}   = 60 if(!exists $server->{'write_timeout'});
+			$server->{'read_timeout'}    = 60 if(!exists $server->{'read_timeout'});
+			$server->{'connect_timeout'} = 15 if(!exists $server->{'connect_timeout'});
 
 			my $id = $server->{'id'};
 			if($server->{'type'} eq 'slave'){
@@ -87,7 +95,8 @@ sub do {
 	$self->flush;
 
 	my $dbh = $self->db->id($id)->connect_master;
-	$self->_logging_sql($sql,@_);
+	warn "sql do $sql" if(defined $ENV{'MOJO_MYSQL_DEBUG'});
+
 	my $counter = $dbh->do($sql,undef,@_) or die $dbh->errstr;
 	my $insertid = int $dbh->{'mysql_insertid'};
 	return wantarray ? ($insertid,$counter) : $insertid;
@@ -128,7 +137,7 @@ sub query {
 		croak 'No connect server' if(ref $dbh ne 'DBI::db');
 	}
 
-	$self->_logging_sql($query,@_);
+	warn "sql query $query" if(defined $ENV{'MOJO_MYSQL_DEBUG'});
 
 	if(defined $async){
 		my $sth = $dbh->prepare($query, {async=>1}) or croak $dbh->errstr;
@@ -149,26 +158,6 @@ sub flush {
 	$self->slave(undef);
 	$self->async(undef);
 }
-
-sub _logging_sql {
-	my $self = shift;
-	my $sql = shift;
-
-	if(ref $self->{'app'}){
-		$sql =~ s/\t//g;
-		$sql =~ s/\n+/ /g;
-		$sql =~ s/^\s//;
-		$sql =~ s/\s$//;
-		$self->{'app'}->log->debug($sql);
-
-		#if(defined @_ && @_){
-		#	$self->{'app'}->log->debug("$sql --- ".join(" | ",@_)." ---");
-		#}
-		#else{
-		#}
-	}
-}
-
 
 1;
 

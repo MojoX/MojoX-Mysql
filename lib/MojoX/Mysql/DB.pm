@@ -86,6 +86,7 @@ sub connect_slave {
 				mysql_auto_reconnect=>1,
 				mysql_write_timeout=>$conf->{'write_timeout'},
 				mysql_read_timeout=>$conf->{'read_timeout'},
+				mysql_connect_timeout=>$conf->{'connect_timeout'},
 			});
 
 			if($DBI::errstr){
@@ -108,8 +109,10 @@ sub commit {
 		if(ref $types eq 'HASH'){
 			for my $type (keys %{$types}){
 				my $dbh = $self->{'dbh'}->{$id}->{$type};
-				$dbh->commit if(ref $dbh eq 'DBI::db');
-				warn "commit:$id,$type" if(defined $ENV{'MOJO_MYSQL_DEBUG'});
+				if(ref $dbh eq 'DBI::db'){
+					$dbh->commit;
+					warn "commit:$id,$type" if(defined $ENV{'MOJO_MYSQL_DEBUG'});
+				}
 			}
 		}
 	}
@@ -121,8 +124,10 @@ sub rollback {
 		if(ref $types eq 'HASH'){
 			for my $type (keys %{$types}){
 				my $dbh = $self->{'dbh'}->{$id}->{$type};
-				$dbh->rollback if(ref $dbh eq 'DBI::db');
-				warn "rollback:$id,$type" if(defined $ENV{'MOJO_MYSQL_DEBUG'});
+				if(ref $dbh eq 'DBI::db'){
+					$dbh->rollback;
+					warn "rollback:$id,$type" if(defined $ENV{'MOJO_MYSQL_DEBUG'});
+				}
 			}
 		}
 	}
@@ -134,8 +139,10 @@ sub disconnect {
 		if(ref $types eq 'HASH'){
 			for my $type (keys %{$types}){
 				my $dbh = $self->{'dbh'}->{$id}->{$type};
-				$dbh->disconnect if(ref $dbh eq 'DBI::db');
-				warn "disconnect:$id,$type" if(defined $ENV{'MOJO_MYSQL_DEBUG'});
+				if(ref $dbh eq 'DBI::db'){
+					$dbh->disconnect;
+					warn "disconnect:$id,$type" if(defined $ENV{'MOJO_MYSQL_DEBUG'});
+				}
 				delete $self->{'dbh'};
 			}
 		}
