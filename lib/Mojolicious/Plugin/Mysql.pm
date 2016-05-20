@@ -1,5 +1,6 @@
 package Mojolicious::Plugin::Mysql;
 use Mojo::Base 'Mojolicious::Plugin';
+use Mojo::Util qw(dumper);
 use FindBin;
 use lib "$FindBin::Bin/../lib/";
 use MojoX::Mysql;
@@ -7,12 +8,12 @@ use MojoX::Mysql;
 sub register {
 	my ($self, $app, $config) = @_;
 
-	$config->{'app'} = $app;
 	my $mysql = MojoX::Mysql->new(%{$config});
 
 	# MojoX
 	$app->helper(mysql=>sub {
-		my ($self) = @_;
+		my ($c) = @_;
+		$mysql->app($c->app);
 		return $mysql;
 	});
 

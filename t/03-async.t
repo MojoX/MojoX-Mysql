@@ -7,7 +7,7 @@ use FindBin;
 use lib "$FindBin::Bin/../lib/";
 use MojoX::Mysql;
 
-plan skip_all => 'set MOJO_TEST_TRAVIS to enable this test' unless $ENV{'MOJO_TEST_TRAVIS'};
+#plan skip_all => 'set MOJO_TEST_TRAVIS to enable this test' unless $ENV{'MOJO_TEST_TRAVIS'};
 
 my %config = (
 	user=>'root',
@@ -35,7 +35,7 @@ $mysql->result->async($sth1,$dbh1);
 $mysql->result->async($sth2,$dbh2);
 
 $time = steady_time - $time;
-ok($time < 2, 'ok async (total time <2 second)');
+ok($time < 2, 'ok async (total time < 2 second)');
 
 $time = steady_time;
 my ($sth3,$dbh3) = $mysql->slave(1)->async(1)->query('SELECT SLEEP (?) as `sleep`', 1);
@@ -45,7 +45,7 @@ $mysql->result->async($sth3,$dbh3);
 $mysql->result->async($sth4,$dbh4);
 
 $time = steady_time - $time;
-ok($time < 2, 'ok async slave (total time <2 second)');
+ok($time < 2, 'ok async slave (total time < 2 second)');
 
 done_testing();
 

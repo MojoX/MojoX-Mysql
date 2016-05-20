@@ -6,13 +6,13 @@ use Mojo::Util qw(dumper);
 use DBI;
 use Carp qw(croak);
 
-our $VERSION  = '0.22';
+our $VERSION  = '0.23';
 
 use MojoX::Mysql::DB;
 use MojoX::Mysql::Result;
 use MojoX::Mysql::Util;
 
-has [qw(async slave)];
+has [qw(async slave app)];
 has [qw(id)] => '_default';
 has 'db'=> sub {
 	my $self = shift;
@@ -55,7 +55,6 @@ sub new {
 			# Add the global connect_timeout
 			$server->{'connect_timeout'} = $args{'connect_timeout'} if(!exists $server->{'connect_timeout'} && exists $args{'connect_timeout'});
 
-
 			$server->{'id'} = '_default'      if(!exists $server->{'id'});
 			$server->{'type'} = 'slave'       if(!exists $server->{'type'});
 			$server->{'weight'} = 1           if(!exists $server->{'weight'});
@@ -95,7 +94,10 @@ sub do {
 	$self->flush;
 
 	my $dbh = $self->db->id($id)->connect_master;
-	warn "sql do $sql" if(defined $ENV{'MOJO_MYSQL_DEBUG'});
+
+	if(defined $ENV{'MOJO_MYSQL_DEBUG'}){
+		$dbh->trace('SQL', $self->app->log->handle) if(ref $self->app);
+	}
 
 	my $counter = $dbh->do($sql,undef,@_) or die $dbh->errstr;
 	my $insertid = int $dbh->{'mysql_insertid'};
@@ -137,7 +139,9 @@ sub query {
 		croak 'No connect server' if(ref $dbh ne 'DBI::db');
 	}
 
-	warn "sql query $query" if(defined $ENV{'MOJO_MYSQL_DEBUG'});
+	if(defined $ENV{'MOJO_MYSQL_DEBUG'}){
+		$dbh->trace('SQL', $self->app->log->handle) if(ref $self->app);
+	}
 
 	if(defined $async){
 		my $sth = $dbh->prepare($query, {async=>1}) or croak $dbh->errstr;

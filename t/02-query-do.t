@@ -31,7 +31,7 @@ $mysql->do(q{
 	  `id` int(11) NOT NULL AUTO_INCREMENT,
 	  `text` varchar(200) NOT NULL,
 	  PRIMARY KEY (`id`)
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='test table' AUTO_INCREMENT=1;
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT='test table' AUTO_INCREMENT=1;
 });
 
 my ($insertid,$counter) = $mysql->do('INSERT INTO `test` (`text`) VALUES(?)', 'Привет как дела');
@@ -53,7 +53,7 @@ $result->map(sub {
 
 $result = $mysql->id(1)->slave(1)->query('SELECT VERSION() as `version`;');
 $result->map(sub {
-	like(shift->{'version'}, qr/^5.5/, 'check version');
+	like(shift->{'version'}, qr/^5/, 'check version');
 });
 
 $mysql->query('SELECT `text` FROM `test` WHERE `id` = ? LIMIT 1', $insertid, sub{
